@@ -978,7 +978,10 @@ def delete_order(id):
     flash('Order deleted successfully', 'success')
     return redirect(url_for('seller_orders'))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     init_db()
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
+
 

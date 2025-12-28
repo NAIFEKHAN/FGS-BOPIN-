@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Seller Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/seller.css') }}">
+</head>
+<body>
+    <nav class="seller-nav">
+        <div class="container">
+            <h2>Seller Panel</h2>
+            <div class="nav-links">
+                <a href="{{ url_for('seller_dashboard') }}" class="active">Dashboard</a>
+                <a href="{{ url_for('seller_products') }}">Products</a>
+                <a href="{{ url_for('seller_banners') }}">Banners</a>
+                <a href="{{ url_for('seller_orders') }}">Orders</a>
+                <a href="{{ url_for('seller_logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h1>Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Products</h3>
+                <p class="stat-number">{{ total_products }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <p class="stat-number">{{ total_orders }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Orders</h3>
+                <p class="stat-number">{{ pending_orders }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <p class="stat-number">${{ "%.2f"|format(total_revenue) }}</p>
+            </div>
+        </div>
+
+        <div class="recent-orders">
+            <h2>Recent Orders</h2>
+            {% if recent_orders %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Pickup Time</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>{{ order.pickup_time.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                        <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                        <td><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <a href="{{ url_for('download_bill', order_id=order.id) }}" class="btn-download" style="text-decoration: none; display: inline-block;">
+                                    PDF
+                                </a>
+                                <form method="POST" action="{{ url_for('delete_order', id=order.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order? This action cannot be undone.');">
+                                    <button type="submit" class="btn-delete">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No orders yet.</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
+
+
+
+

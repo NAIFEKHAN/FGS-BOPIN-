@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">
+  <defs>
+    <linearGradient id="bgDefault" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f5f5f7"/>
+      <stop offset="100%" stop-color="#e5e7eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bgDefault)"/>
+  <rect x="140" y="80" width="320" height="220" rx="24" ry="24"
+        fill="#ffffff" stroke="#d1d5db" stroke-width="3"/>
+  <path d="M180 260 L250 200 L300 240 L350 190 L420 260 Z"
+        fill="#e5f3ec"/>
+  <circle cx="225" cy="170" r="30" fill="#d1fae5"/>
+  <circle cx="225" cy="170" r="18" fill="#35b369"/>
+  <text x="300" y="315" text-anchor="middle"
+        font-family="Segoe UI, system-ui, sans-serif"
+        font-size="18" fill="#6b7280">
+    Grocery item
+  </text>
+</svg>
+
+
+
+

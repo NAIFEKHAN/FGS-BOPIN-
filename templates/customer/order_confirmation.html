@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - FGS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/customer.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>FGS</h1>
+            <nav>
+                <a href="{{ url_for('index') }}">Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="confirmation-section">
+            <div class="success-icon">✓</div>
+            <h2>Order Placed Successfully!</h2>
+            <p class="order-id">Order ID: #{{ order.id }}</p>
+            
+            <div class="order-details">
+                <h3>Order Details</h3>
+                <div class="detail-row">
+                    <span>Customer Name:</span>
+                    <span>{{ order.customer_name }}</span>
+                </div>
+                {% if order.customer_email %}
+                <div class="detail-row">
+                    <span>Email:</span>
+                    <span>{{ order.customer_email }}</span>
+                </div>
+                {% endif %}
+                <div class="detail-row">
+                    <span>Phone:</span>
+                    <span>{{ order.customer_phone }}</span>
+                </div>
+                <div class="detail-row">
+                    <span>Pickup Time:</span>
+                    <span>{{ order.pickup_time.strftime('%Y-%m-%d %I:%M %p') }}</span>
+                </div>
+                <div class="detail-row">
+                    <span>Total Amount:</span>
+                    <span class="total-amount">${{ "%.2f"|format(order.total_amount) }}</span>
+                </div>
+            </div>
+            
+            <div class="order-items">
+                <h3>Items Ordered</h3>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>
+                                {% if item.product.unit_type == 'kg' %}
+                                    {% if item.quantity == 1.0 %}
+                                        1 kg
+                                    {% elif item.quantity == 0.75 %}
+                                        750g
+                                    {% elif item.quantity == 0.5 %}
+                                        500g
+                                    {% elif item.quantity == 0.25 %}
+                                        250g
+                                    {% elif item.quantity == 0.1 %}
+                                        100g
+                                    {% elif item.quantity % 1 == 0 %}
+                                        {{ item.quantity|int }} kg
+                                    {% else %}
+                                        {{ (item.quantity * 1000)|int }}g
+                                    {% endif %}
+                                {% else %}
+                                    {% if item.quantity % 1 == 0 %}
+                                        {{ item.quantity|int }}
+                                    {% else %}
+                                        {{ item.quantity }}
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>${{ "%.2f"|format(item.price) }}{% if item.product.unit_type == 'kg' %} / kg{% endif %}</td>
+                            <td>${{ "%.2f"|format(item.quantity * item.price) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="confirmation-actions">
+                <a href="{{ url_for('download_bill', order_id=order.id) }}" class="btn-primary">
+                    Download Bill PDF
+                </a>
+                <a href="{{ url_for('index') }}" class="btn-secondary">Continue Shopping</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 FGS. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - Seller Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/seller.css') }}">
+</head>
+<body>
+    <nav class="seller-nav">
+        <div class="container">
+            <h2>Seller Panel</h2>
+            <div class="nav-links">
+                <a href="{{ url_for('seller_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('seller_products') }}">Products</a>
+                <a href="{{ url_for('seller_banners') }}">Banners</a>
+                <a href="{{ url_for('seller_orders') }}" class="active">Orders</a>
+                <a href="{{ url_for('seller_logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h1>Orders</h1>
+
+        <div class="orders-table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Items</th>
+                        <th>Pickup Time</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>{{ order.customer_phone }}</td>
+                        <td>
+                            <div class="order-items-list">
+                                {% for item in order.items %}
+                                <div class="order-item-row">
+                                    <span class="item-name">{{ item.product.name if item.product else 'Unknown Product' }}</span>
+                                    <span class="item-quantity">
+                                        {% if item.product and item.product.unit_type == 'kg' %}
+                                            {% if item.quantity == 1.0 %}
+                                                1 kg
+                                            {% elif item.quantity == 0.75 %}
+                                                750g
+                                            {% elif item.quantity == 0.5 %}
+                                                500g
+                                            {% elif item.quantity == 0.25 %}
+                                                250g
+                                            {% elif item.quantity == 0.1 %}
+                                                100g
+                                            {% elif item.quantity % 1 == 0 %}
+                                                {{ item.quantity|int }} kg
+                                            {% else %}
+                                                {{ (item.quantity * 1000)|int }}g
+                                            {% endif %}
+                                        {% else %}
+                                            {% if item.quantity % 1 == 0 %}
+                                                {{ item.quantity|int }}
+                                            {% else %}
+                                                {{ item.quantity }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </span>
+                                    <span class="item-price">@ ${{ "%.2f"|format(item.price) }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td>{{ order.pickup_time.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                        <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                        <td>
+                            <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
+                                <form method="POST" action="{{ url_for('update_order_status', id=order.id) }}" style="display: inline;">
+                                    <select name="status" onchange="this.form.submit()">
+                                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="ready" {% if order.status == 'ready' %}selected{% endif %}>Ready</option>
+                                        <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completed</option>
+                                    </select>
+                                </form>
+                                <a href="{{ url_for('download_bill', order_id=order.id) }}" class="btn-download" style="text-decoration: none; display: inline-block;">
+                                    Download PDF
+                                </a>
+                                <form method="POST" action="{{ url_for('delete_order', id=order.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order? This action cannot be undone.');">
+                                    <button type="submit" class="btn-delete">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>
+
+
+
+

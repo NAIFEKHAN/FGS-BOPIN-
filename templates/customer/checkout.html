@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Checkout - FGS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/customer.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <div class="brand">
+                <img src="static/css/Gemini_Generated_Image_s58ions58ions58i.png" alt="FGS Logo" class="brand-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="brand-logo" style="display: none;">🛒</div>
+                <h1>FGS</h1>
+            </div>
+            <nav class="main-nav">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('cart') }}" class="nav-icon-link">
+                    <span class="nav-icon">🛒</span>
+                    <span class="nav-text">Cart</span>
+                    <span class="badge" id="cart-count">0</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Offer Banners 
+            {% if banners %}
+            <section class="banners-section">
+                <h2>Today's offers</h2>
+                <div class="banners-grid">
+                    {% for banner in banners %}
+                    <div class="banner-card">
+                        {% if banner.image_path %}
+                        <img src="{{ url_for('static', filename=banner.image_path) }}" alt="{{ banner.title }}">
+                        {% endif %}
+                        <div class="banner-content">
+                            <h3>{{ banner.title }}</h3>
+                            {% if banner.description %}
+                            <p>{{ banner.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}-->
+
+            <h2>Checkout</h2>
+            
+            <form method="POST" action="{{ url_for('process_checkout') }}" class="checkout-form">
+            <div class="form-section">
+                <h3>Customer Information</h3>
+                <div class="form-group">
+                    <label for="customer_name">Full Name *</label>
+                    <input type="text" id="customer_name" name="customer_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer_phone">Phone Number *</label>
+                    <input type="tel" id="customer_phone" name="customer_phone" required>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>Pickup Time</h3>
+                <div class="form-group">
+                    <label for="pickup_date">Pickup Date *</label>
+                    <input type="date" id="pickup_date" name="pickup_date" 
+                           value="{{ default_date }}" min="{{ default_date }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="pickup_time_slot">Pickup Time Slot *</label>
+                    <select id="pickup_time_slot" name="pickup_time_slot" required>
+                        <option value="">Select a time slot</option>
+                        {% for slot in time_slots %}
+                        <option value="{{ slot.time_slot }}" 
+                                {% if loop.first %}selected{% endif %}>
+                            {{ slot.time_slot }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="{{ url_for('cart') }}" class="btn-secondary">Back to Cart</a>
+                <button type="submit" class="btn-primary">Place Order</button>
+            </div>
+        </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 FGS. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
+
+
+

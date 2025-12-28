@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>FGS - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/customer.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="header-top">
+                <div class="brand">
+                    <img src="static/css/Gemini_Generated_Image_s58ions58ions58i.png" alt="FGS Logo" class="brand-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="brand-logo" style="display: none;">🛒</div>
+                    <h1>FGS</h1>
+                </div>
+                <nav class="main-nav">
+                    <a href="{{ url_for('cart') }}" class="nav-icon-link">
+                        <span class="nav-icon">🛒</span>
+                        <span class="nav-text">Cart</span>
+                        <span class="badge" id="cart-count">0</span>
+                    </a>
+                    <a href="{{ url_for('seller_login') }}" class="nav-link nav-cta">Seller Login</a>
+                </nav>
+            </div>
+            <div class="header-search-wrapper">
+                <input 
+                    type="text" 
+                    id="header-search-input" 
+                    class="header-search-input" 
+                    placeholder="Search for products..."
+                    autocomplete="off"
+                >
+            </div>
+        </div>
+        <div class="category-bar">
+            <div class="container category-nav">
+                <button class="category-tab category-tab--active" data-category="all">All</button>
+                <button class="category-tab" data-category="dairy">Dairy, Bread & Eggs</button>
+                <button class="category-tab" data-category="atta">Atta, Oil & Dals</button>
+                <button class="category-tab" data-category="rice">Rice</button>
+                <button class="category-tab" data-category="masala">Masala & Dry Fruits</button>
+                <button class="category-tab" data-category="snacks">Snacks</button>
+                <button class="category-tab" data-category="packaged">Packaged Foods</button>
+                <button class="category-tab" data-category="juices">Cold Drinks & Juices</button>
+                <button class="category-tab" data-category="baby">Baby Care</button>
+                <button class="category-tab" data-category="homeneeds">Home Needs</button>
+                <button class="category-tab" data-category="biscuits">Biscuits & Cookies</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hidden search input for compatibility with existing JS -->
+        <input type="text" id="product-search" style="display: none;" autocomplete="off">
+        
+        <div class="container">
+            <!-- Offer Banners -->
+            {% if banners %}
+            <section class="banners-section">
+                
+                <div class="banners-grid">
+                    {% for banner in banners %}
+                    <div class="banner-card">
+                        {% if banner.image_path %}
+                        <img src="{{ url_for('static', filename=banner.image_path) }}" alt="{{ banner.title }}">
+                        {% endif %}
+                        <div class="banner-content">
+                            <h3>{{ banner.title }}</h3>
+                            {% if banner.description %}
+                            <p>{{ banner.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Products Section -->
+            <section class="products-section" id="products">
+                <h2>All products</h2>
+                <div class="products-grid" id="products-grid">
+                    {% for product in products %}
+                    <div class="product-card" 
+                         data-name="{{ product.name|lower }}" 
+                         data-description="{{ (product.description or '')|lower }}">
+                        <div class="product-image-wrapper">
+                            <img src="{{ url_for('static', filename=product.image_path or 'img/default-product.svg') }}" 
+                                 alt="{{ product.name }}" class="product-image">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <div class="product-details">
+                                <div class="product-prices">
+                                    {% if product.original_price and product.original_price > product.price %}
+                                    <span class="product-price-old">
+                                        ${{ "%.2f"|format(product.original_price) }}
+                                    </span>
+                                    {% endif %}
+                                    <span class="product-price-new">
+                                        ${{ "%.2f"|format(product.price) }}
+                                    </span>
+                                </div>
+                                <span class="product-stock {% if product.quantity_available > 0 %}in-stock{% else %}out-of-stock{% endif %}">
+                                    {% if product.quantity_available > 0 %}
+                                        In stock ({{ product.quantity_available }})
+                                    {% else %}
+                                        Out of stock
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% if product.quantity_available > 0 %}
+                            <div class="add-to-cart-section">
+                                {% if product.unit_type == 'kg' %}
+                                <select class="quantity-select" id="qty-{{ product.id }}">
+                                    <option value="0.1">100g</option>
+                                    <option value="0.25">250g</option>
+                                    <option value="0.5">500g</option>
+                                    <option value="0.75">750g</option>
+                                    <option value="1" selected>1kg</option>
+                                </select>
+                                {% else %}
+                                <input type="number" min="1" max="{{ product.quantity_available }}" value="1" 
+                                       class="quantity-input" id="qty-{{ product.id }}">
+                                {% endif %}
+                                <button class="btn-add-cart" data-product-id="{{ product.id }}">
+                                    Add to cart
+                                </button>
+                            </div>
+                            {% else %}
+                            <button class="btn-add-cart btn-disabled" disabled>Out of stock</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if not products %}
+                <div class="empty-state">
+                    <h3>No products yet</h3>
+                    <p>Ask the store owner to add products from the seller page.</p>
+                    <a href="{{ url_for('seller_login') }}" class="btn-primary">Seller login</a>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 FGS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/customer.js') }}"></script>
+</body>
+</html>
+
+

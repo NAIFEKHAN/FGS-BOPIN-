@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banners - Seller Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/seller.css') }}">
+</head>
+<body>
+    <nav class="seller-nav">
+        <div class="container">
+            <h2>Seller Panel</h2>
+            <div class="nav-links">
+                <a href="{{ url_for('seller_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('seller_products') }}">Products</a>
+                <a href="{{ url_for('seller_banners') }}" class="active">Banners</a>
+                <a href="{{ url_for('seller_orders') }}">Orders</a>
+                <a href="{{ url_for('seller_logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="page-header">
+            <h1>Offer Banner Management</h1>
+            <button class="btn-primary" onclick="openModal('add-banner-modal')">Add New Banner</button>
+        </div>
+
+        <div class="banners-grid-admin">
+            {% for banner in banners %}
+            <div class="banner-card-admin">
+                {% if banner.image_path %}
+                <img src="{{ url_for('static', filename=banner.image_path) }}" alt="{{ banner.title }}">
+                {% else %}
+                <div class="no-image">No Image</div>
+                {% endif %}
+                <div class="banner-info">
+                    <h3>{{ banner.title }}</h3>
+                    {% if banner.description %}
+                    <p>{{ banner.description }}</p>
+                    {% endif %}
+                    <span class="status-badge {% if banner.is_active %}status-active{% else %}status-inactive{% endif %}">
+                        {% if banner.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                <div class="banner-actions">
+                    <button class="btn-edit" onclick="editBanner({{ banner.id }}, '{{ banner.title }}', '{{ banner.description|replace("'", "\\'") }}', {{ banner.is_active|lower }}, '{{ banner.image_path }}')">
+                        Edit
+                    </button>
+                    <form method="POST" action="{{ url_for('delete_banner', id=banner.id) }}" 
+                          style="display: inline;" 
+                          onsubmit="return confirm('Delete this banner?');">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Add Banner Modal -->
+        <div id="add-banner-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('add-banner-modal')">&times;</span>
+                <h2>Add New Banner</h2>
+                <form method="POST" action="{{ url_for('add_banner') }}" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="banner-title">Title</label>
+                        <input type="text" id="banner-title" name="title">
+                    </div>
+                    <div class="form-group">
+                        <label for="banner-description">Description</label>
+                        <textarea id="banner-description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="banner-image">Banner Image *</label>
+                        <input type="file" id="banner-image" name="image" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="is_active" checked> Active
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('add-banner-modal')">Cancel</button>
+                        <button type="submit" class="btn-primary">Add Banner</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Banner Modal -->
+        <div id="edit-banner-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('edit-banner-modal')">&times;</span>
+                <h2>Edit Banner</h2>
+                <form id="edit-banner-form" method="POST" action="" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="edit-banner-title">Title *</label>
+                        <input type="text" id="edit-banner-title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-banner-description">Description</label>
+                        <textarea id="edit-banner-description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-banner-image">Banner Image (leave empty to keep current)</label>
+                        <input type="file" id="edit-banner-image" name="image" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="edit-banner-active" name="is_active"> Active
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('edit-banner-modal')">Cancel</button>
+                        <button type="submit" class="btn-primary">Update Banner</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/seller.js') }}"></script>
+</body>
+</html>
+
+
+
+
